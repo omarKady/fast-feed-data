@@ -11,6 +11,9 @@ djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
 psycopg2-binary = "*"
+django-rest-auth = "*"
+django-allauth = "*"
+django-environ = "*"
 
 [dev-packages]
 

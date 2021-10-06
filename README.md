@@ -8,9 +8,8 @@ Technologies :
 - Redis
 
 Endpoints :
-- Login
+- Login/logout
 - Signup
-- Details of users
 - get url from users
 - list all feed items of user (private)
 - List all feed items in the site (public)

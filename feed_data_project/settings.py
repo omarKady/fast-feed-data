@@ -50,9 +50,6 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'rest_auth.registration',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.google',
     # Local
     'api',
     'users',
@@ -130,6 +127,7 @@ DATABASES = {
     }
 }
 
+ACCOUNT_LOGOUT_ON_GET = True
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`

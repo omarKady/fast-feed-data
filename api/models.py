@@ -5,6 +5,7 @@ from users.models import CustomUser
 class Feed(models.Model):
     title = models.CharField(max_length=300, unique=True)
     url = models.URLField(max_length=400)
+    feed_link = models.CharField(max_length=400, default="", blank=True, null=True)
     owener = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 

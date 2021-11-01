@@ -6,20 +6,41 @@ from rest_framework import status
 from .serializers import FeedSerializer
 # Create your views here.
 
-# TODO : get detail of feed object or not found error
-@api_view(['GET'])
+# TODO : get detail of feed object, delete or update
+@api_view(['GET', 'DELETE', 'PUT'])
 def feed_detail(request, pk):
     try:
         feed = Feed.objects.get(pk=pk)
-        seriallizer = FeedSerializer(feed)
-        return Response(seriallizer.data)
     except:
         raise Http404
 
+    if request.method == 'GET':
+        seriallizer = FeedSerializer(feed)
+        return Response(seriallizer.data)
 
-# TODO : get list of feeds
-@api_view(['GET'])
+    elif request.method == 'DELETE':
+        feed.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    elif request.method == 'PUT':
+        seriallizer = FeedSerializer(feed, data=request.data)
+        if seriallizer.is_valid():
+            seriallizer.save()
+            return Response(seriallizer.data)
+        return Response(seriallizer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# TODO : get list of feeds or create new resource
+@api_view(['GET', 'POST'])
 def get_feeds_list(request):
-    feeds = Feed.objects.all()
-    serializer = FeedSerializer(feeds, many=True)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        feeds = Feed.objects.all()
+        serializer = FeedSerializer(feeds, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = FeedSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

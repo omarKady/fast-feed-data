@@ -48,3 +48,14 @@ def get_feeds_list(request):
             get_feed_to_check.delay(feed_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# TODO : List all feeds of user (requester) 
+@api_view(['GET'])
+def get_user_feeds(request):
+    if request.method == 'GET':
+        requester = request.user
+        #feeds = Feed.objects.filter(owner=requester)
+        feeds = Feed.objects.raw('SELECT id,title,owner_id FROM api_feed WHERE owner_id=%s',[request.user.id])
+        print('FEEDS: ', feeds.query)
+        serializer = FeedSerializer(feeds, many=True)
+        return Response(serializer.data)

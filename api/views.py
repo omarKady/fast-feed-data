@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import Http404
 from rest_framework import status
+from .tasks import get_feed_to_check
 from .serializers import FeedSerializer
 # Create your views here.
 
@@ -42,5 +43,19 @@ def get_feeds_list(request):
         serializer = FeedSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            feed_id = serializer.data['id']
+            #get_feed_to_check.apply_async((feed_id,), countdown=15)
+            get_feed_to_check.delay(feed_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# TODO : List all feeds of user (requester) 
+@api_view(['GET'])
+def get_user_feeds(request):
+    if request.method == 'GET':
+        requester = request.user
+        #feeds = Feed.objects.filter(owner=requester)
+        feeds = Feed.objects.raw('SELECT id,title,owner_id FROM api_feed WHERE owner_id=%s',[request.user.id])
+        print('FEEDS: ', feeds.query)
+        serializer = FeedSerializer(feeds, many=True)
+        return Response(serializer.data)

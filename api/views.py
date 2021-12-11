@@ -1,10 +1,10 @@
-from api.models import Feed
+from api.models import Feed, FollowedItems
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import Http404
 from rest_framework import status
 from .tasks import get_feed_to_check
-from .serializers import FeedSerializer
+from .serializers import FeedSerializer, FollowedItemSerializer
 # Create your views here.
 
 # TODO : get detail of feed object, delete or update
@@ -59,3 +59,36 @@ def get_user_feeds(request):
         print('FEEDS: ', feeds.query)
         serializer = FeedSerializer(feeds, many=True)
         return Response(serializer.data)
+
+# TODO : User can follow feed item
+@api_view(['POST'])
+def user_follow_feed(requset, pk):
+    try:
+        feed = Feed.objects.get(id=pk)
+    except:
+        raise Http404
+
+    if requset.method == 'POST':
+        follower = requset.user.id
+        feed = Feed.objects.get(id=pk).id
+        datas = {'follower':follower, 'feed_item':feed}
+        serializer = FollowedItemSerializer(data=datas)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# TODO : User unfollow feed item
+@api_view(['DELETE'])
+def user_unfollow_feed(request, pk):
+    try:
+        feed = Feed.objects.get(id=pk)
+        user = request.user
+        followed_item = FollowedItems.objects.get(feed_item_id=pk, follower_id=user.id)
+    except:
+        raise Http404
+    
+    if request.method == 'DELETE':
+        followed_item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

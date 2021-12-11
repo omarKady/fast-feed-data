@@ -14,3 +14,8 @@ class Feed(models.Model):
 
     def get_url(self):
         return self.url
+
+class FollowedItems(models.Model):
+    follower = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    feed_item = models.ForeignKey(Feed, on_delete=models.CASCADE)
+
